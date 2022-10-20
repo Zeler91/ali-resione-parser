@@ -4,3 +4,8 @@ selenium==4.5.0
 chromedriver-binary==106.0.5249.61.0
 gunicorn
 flask
+Jinja2
+telegram
+virtualenv
+virtualenvwrapper-win
+itsdangerous
