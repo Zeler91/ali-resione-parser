@@ -63,16 +63,16 @@ def search_product_by_attributes(product_type='M68', product_weight_in_gramms=10
     window_index = 1
     for product in products_list:
         product.click()
-        browser.switch_to.window(browser.window_handles[window_index])
         time.sleep(3)
+        browser.switch_to.window(browser.window_handles[window_index])
         product = find_product_on_item_page(browser, product_type=product_type, product_weight_in_gramms=product_weight_in_gramms)
         if product:
             browser.quit()             
             return product
         else:
             window_index += 1
-            browser.switch_to.window(browser.window_handles[0])
             time.sleep(3)
+            browser.switch_to.window(browser.window_handles[0])
     else:
         browser.quit()             
         return 'There is no products with such attributes'
