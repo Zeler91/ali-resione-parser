@@ -1,4 +1,8 @@
 python-telegram-bot==20.0a4
 requests==2.28.1
 selenium==4.5.0
+<<<<<<< HEAD
 python-dotenv
+=======
+chromedriver-binary == 106.0.5249.61.0
+>>>>>>> add window arg to chrome
