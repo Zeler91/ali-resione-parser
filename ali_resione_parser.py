@@ -23,7 +23,8 @@ def input_search_request(search_request:str, browser:webdriver):
     browser.get("https://www.aliexpress.ru")
     search_input = browser.find_element(By.ID, "searchInput")  
     search_input.send_keys(search_request) 
-    search_input.send_keys(Keys.ENTER)   
+    search_input.send_keys(Keys.ENTER)
+    time.sleep(1)   
 
 def sort_elements_by_price(elements_list):
     price_list_sorted = []
@@ -39,6 +40,7 @@ def sort_elements_by_price(elements_list):
     return elements_list_sorted
 
 def find_product_on_item_page(browser:webdriver, product_type, product_weight_in_gramms):
+    time.sleep(1)
     product_title = browser.find_element(By.XPATH, '//*[@id="__aer_root__"]/div/div[7]/div[2]/div/div/div[1]/div/div[1]/div[1]/div/span[2]')
     product_price = browser.find_element(By.XPATH, '//*[@id="__aer_root__"]/div/div[7]/div[2]/div/div/div[3]/div[1]/div/div[2]/div[2]')
     products = browser.find_element(By.XPATH, '//*[@id="__aer_root__"]/div/div[7]/div[2]/div/div/div[1]/div/div[1]/div[2]/div')
@@ -64,6 +66,7 @@ def search_product_by_attributes(product_type='M68', product_weight_in_gramms=10
     window_index = 1
     for product in products_list:
         product.click()
+        time.sleep(1)
         browser.switch_to.window(browser.window_handles[window_index])
         product = find_product_on_item_page(browser, product_type=product_type, product_weight_in_gramms=product_weight_in_gramms)
         if product:
@@ -72,6 +75,7 @@ def search_product_by_attributes(product_type='M68', product_weight_in_gramms=10
         else:
             window_index += 1
             browser.switch_to.window(browser.window_handles[0])
+            time.sleep(1)
     else:
         browser.quit()             
         return 'There is no products with such attributes'
