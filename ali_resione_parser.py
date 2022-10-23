@@ -1,6 +1,5 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-import chromedriver_binary
 import time
 
 from selenium.webdriver.common.by import By
@@ -13,8 +12,11 @@ def init_browser():
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-gpu')
     options.add_argument('--headless')
+    options.add_argument("--window-size=1920,1080")
     options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--disable-extensions')
     browser = webdriver.Chrome(options=options)
+    browser.implicitly_wait(1)
     return browser
 
 def input_search_request(search_request:str, browser:webdriver):
@@ -22,7 +24,6 @@ def input_search_request(search_request:str, browser:webdriver):
     search_input = browser.find_element(By.ID, "searchInput")  
     search_input.send_keys(search_request) 
     search_input.send_keys(Keys.ENTER)   
-    time.sleep(3)
 
 def sort_elements_by_price(elements_list):
     price_list_sorted = []
@@ -62,8 +63,8 @@ def search_product_by_attributes(product_type='M68', product_weight_in_gramms=10
     products_list = sort_elements_by_price(searched_elements_list)
     window_index = 1
     for product in products_list:
+        browser.implicitly_wait(1)     
         product.click()
-        time.sleep(3)
         browser.switch_to.window(browser.window_handles[window_index])
         product = find_product_on_item_page(browser, product_type=product_type, product_weight_in_gramms=product_weight_in_gramms)
         if product:
@@ -71,7 +72,6 @@ def search_product_by_attributes(product_type='M68', product_weight_in_gramms=10
             return product
         else:
             window_index += 1
-            time.sleep(3)
             browser.switch_to.window(browser.window_handles[0])
     else:
         browser.quit()             
