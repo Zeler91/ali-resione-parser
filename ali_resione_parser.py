@@ -24,6 +24,7 @@ def input_search_request(search_request:str, browser:webdriver):
     search_input = browser.find_element(By.ID, "searchInput")  
     search_input.send_keys(search_request) 
     search_input.send_keys(Keys.ENTER)   
+    browser.implicitly_wait(1)
 
 def sort_elements_by_price(elements_list):
     price_list_sorted = []
@@ -39,6 +40,7 @@ def sort_elements_by_price(elements_list):
     return elements_list_sorted
 
 def find_product_on_item_page(browser:webdriver, product_type, product_weight_in_gramms):
+    browser.implicitly_wait(1)
     product_title = browser.find_element(By.XPATH, '//*[@id="__aer_root__"]/div/div[7]/div[2]/div/div/div[1]/div/div[1]/div[1]/div/span[2]')
     product_price = browser.find_element(By.XPATH, '//*[@id="__aer_root__"]/div/div[7]/div[2]/div/div/div[3]/div[1]/div/div[2]/div[2]')
     products = browser.find_element(By.XPATH, '//*[@id="__aer_root__"]/div/div[7]/div[2]/div/div/div[1]/div/div[1]/div[2]/div')
@@ -52,6 +54,7 @@ def find_product_on_item_page(browser:webdriver, product_type, product_weight_in
             return product_data
         else:
             products_list[product_index].click()
+            browser.implicitly_wait(1)
             product_title = browser.find_element(By.XPATH, '//*[@id="__aer_root__"]/div/div[7]/div[2]/div/div/div[1]/div/div[1]/div[1]/div/span[2]')
             product_index += 1
     return None
@@ -63,8 +66,8 @@ def search_product_by_attributes(product_type='M68', product_weight_in_gramms=10
     products_list = sort_elements_by_price(searched_elements_list)
     window_index = 1
     for product in products_list:
-        browser.implicitly_wait(1)     
         product.click()
+        browser.implicitly_wait(1)     
         browser.switch_to.window(browser.window_handles[window_index])
         product = find_product_on_item_page(browser, product_type=product_type, product_weight_in_gramms=product_weight_in_gramms)
         if product:
