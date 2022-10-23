@@ -24,7 +24,6 @@ def input_search_request(search_request:str, browser:webdriver):
     search_input = browser.find_element(By.ID, "searchInput")  
     search_input.send_keys(search_request) 
     search_input.send_keys(Keys.ENTER)   
-    time.sleep(3)
 
 def sort_elements_by_price(elements_list):
     price_list_sorted = []
@@ -65,7 +64,6 @@ def search_product_by_attributes(product_type='M68', product_weight_in_gramms=10
     window_index = 1
     for product in products_list:
         product.click()
-        time.sleep(3)
         browser.switch_to.window(browser.window_handles[window_index])
         product = find_product_on_item_page(browser, product_type=product_type, product_weight_in_gramms=product_weight_in_gramms)
         if product:
@@ -73,7 +71,6 @@ def search_product_by_attributes(product_type='M68', product_weight_in_gramms=10
             return product
         else:
             window_index += 1
-            time.sleep(3)
             browser.switch_to.window(browser.window_handles[0])
     else:
         browser.quit()             
