@@ -1,10 +1,15 @@
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
-
+import os
 from ali_resione_parser import search_product_by_attributes
+from dotenv import load_dotenv
 
-TOKEN = '5790801631:AAF1rk_MZJH5bBhRV5Rn3nS-s4z9i7mAemI'
+# token for local
+load_dotenv()
+TOKEN_LOCAL = os.getenv('BOT_TOKEN')
 
+# token env for server
+TOKEN = os.environ.get('BOT_TOKEN', TOKEN_LOCAL)
 
 async def hello(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_name = update.effective_user.full_name
