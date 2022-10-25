@@ -1,9 +1,9 @@
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
-
+import os
 from ali_resione_parser import search_product_by_attributes
 
-TOKEN = '5790801631:AAG3_RmM9XUKc5wZ4jbsdJb-sBWx6GLeml8'
+TOKEN = os.getenv('BOT_TOKEN')
 
 
 async def hello(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -19,10 +19,12 @@ app = ApplicationBuilder().token(TOKEN).build()
 app.add_handler(CommandHandler("hello", hello))
 app.add_handler(CommandHandler("search", start_search))
 
-# app.run_webhook(listen='0.0.0.0',
-#     port=8443,
-#     url_path='TOKEN',
-#     webhook_url='https://api.render.com/deploy/srv-cd7i3o2en0hgupusmas0?key=FYfTJtPiyRY/' + TOKEN)
+app.run_webhook(listen='52.41.36.82',
+    port=8443,
+    url_path='TOKEN',
+    key=os.getenv('private-ssh'),
+    cert=os.getenv('public-ssh'),
+    webhook_url='https://api.render.com/deploy/srv-cdc54oo2i3msb93n6jl0?key=kM26ZCQrJbg/' + TOKEN)
 
 # Запускаем приложение
-app.run_polling()
+# app.run_polling()
