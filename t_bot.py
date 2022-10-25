@@ -3,7 +3,7 @@ from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
 from ali_resione_parser import search_product_by_attributes
 
-TOKEN = '5790801631:AAF1rk_MZJH5bBhRV5Rn3nS-s4z9i7mAemI'
+TOKEN = '5790801631:AAG3_RmM9XUKc5wZ4jbsdJb-sBWx6GLeml8'
 
 
 async def hello(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
