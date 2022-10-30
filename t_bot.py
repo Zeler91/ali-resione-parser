@@ -13,12 +13,10 @@ async def hello(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def start_search(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     resione = search_product_by_attributes()
-    if resione is dict:
+    if type(resione) is dict:
         await update.message.reply_text(f'{resione["title"]} \n{resione["price"]} \n{resione["url"]}')
-    elif resione is str:
-        await update.message.reply_text(resione)
     else:
-        await update.message.reply_text('No results')
+        await update.message.reply_text(resione)
 
 
 app = ApplicationBuilder().token(TOKEN).build()

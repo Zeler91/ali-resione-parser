@@ -41,9 +41,9 @@ def sort_elements_by_price(elements_list):
 
 def find_product_on_item_page(browser:webdriver, product_type, product_weight_in_gramms):
     browser.implicitly_wait(1)
-    product_title = browser.find_element(By.XPATH, '//*[@id="__aer_root__"]/div/div[7]/div[2]/div/div/div[1]/div/div[1]/div[1]/div/span[2]')
-    product_price = browser.find_element(By.XPATH, '//*[@id="__aer_root__"]/div/div[7]/div[2]/div/div/div[3]/div[1]/div/div[2]/div[2]')
-    products = browser.find_element(By.XPATH, '//*[@id="__aer_root__"]/div/div[7]/div[2]/div/div/div[1]/div/div[1]/div[2]/div')
+    product_title = browser.find_element(By.XPATH, '/html/body/div[1]/div/div[8]/div[2]/div/div/div[1]/div/div[1]/div[1]/div/span[2]')
+    product_price = browser.find_element(By.XPATH, '/html/body/div[1]/div/div[8]/div[2]/div/div/div[3]/div[1]/div/div[2]/div[2]')
+    products = browser.find_element(By.XPATH, '/html/body/div[1]/div/div[8]/div[2]/div/div/div[1]/div/div[1]/div[2]/div')
     products_list = products.find_elements(By.TAG_NAME, 'div')
     weight_in_kg = product_weight_in_gramms / 1000
     product_index = 1
@@ -55,14 +55,16 @@ def find_product_on_item_page(browser:webdriver, product_type, product_weight_in
         else:
             products_list[product_index].click()
             browser.implicitly_wait(1)
-            product_title = browser.find_element(By.XPATH, '//*[@id="__aer_root__"]/div/div[7]/div[2]/div/div/div[1]/div/div[1]/div[1]/div/span[2]')
+            product_title = browser.find_element(By.XPATH, '/html/body/div[1]/div/div[8]/div[2]/div/div/div[1]/div/div[1]/div[1]/div/span[2]')
+            product_price = browser.find_element(By.XPATH, '/html/body/div[1]/div/div[8]/div[2]/div/div/div[3]/div[1]/div/div[2]/div[2]')            
             product_index += 1
     return None
 
 def search_product_by_attributes(product_type='M68', product_weight_in_gramms=1000):
     browser = init_browser()
     input_search_request(SEARCH_REQUEST, browser)
-    searched_elements_list = browser.find_elements(By.CLASS_NAME, 'snow-price_SnowPrice__mainM__ugww0l')
+    first_element_price = browser.find_element(By.XPATH, '/html/body/div[1]/div/div[4]/div[2]/div[2]/div[2]/div/div/div[1]/div/div/a/div[3]/div[2]/div[1]')
+    searched_elements_list = browser.find_elements(By.CLASS_NAME, first_element_price.get_attribute('class'))
     products_list = sort_elements_by_price(searched_elements_list)
     window_index = 1
     for product in products_list:
