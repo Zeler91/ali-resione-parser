@@ -1,12 +1,12 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import time
-# import chromedriver_binary
+import log_config
+# import chromedriver_binary # need for debug
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 SEARCH_REQUEST = 'Resione m68'
-
 
 options = Options()
 options.add_argument('--no-sandbox')
@@ -15,9 +15,15 @@ options.add_argument('--headless')
 options.add_argument("--window-size=1920,1080")
 options.add_argument('--disable-dev-shm-usage')
 options.add_argument('--disable-extensions')
-browser = webdriver.Chrome(options=options)
-browser.implicitly_wait(1)
 
+try:
+    browser = webdriver.Chrome(options=options)
+    browser.implicitly_wait(1)
+except Exception as e:
+    log_config.logging.error(f'Browser init error: {e}')
+    raise
+
+log_config.logging.info('Browser init done!')
 
 def input_search_request(search_request:str):
     global browser
@@ -40,13 +46,23 @@ def sort_elements_by_price(elements_list):
                 break
     return elements_list_sorted
 
-def find_product_on_item_page(*args):
+def find_element_by_xpath(xpath:str):
     global browser
-    product_title = browser.find_element(By.XPATH, '/html/body/div[1]/div/div[8]/div[2]/div/div/div[1]/div/div[1]/div[1]/div/span[2]')
-    product_price = browser.find_element(By.XPATH, '/html/body/div[1]/div/div[8]/div[2]/div/div/div[3]/div[1]/div/div[2]/div[2]')
-    product_options = browser.find_element(By.XPATH, '/html/body/div[1]/div/div[8]/div[2]/div/div/div[1]/div/div[1]/div[2]/div')
+    try:
+        element = browser.find_element(By.XPATH, xpath)
+    except Exception as e:
+        log_config.logging.error(f'xpath error: {xpath}')
+        raise
+    return element
+
+
+
+def find_product_on_item_page(*args):
+    product_title = find_element_by_xpath('/html/body/div[1]/div/div[8]/div[2]/div/div/div[1]/div/div[1]/div[1]/div/span[2]')
+    product_price = find_element_by_xpath('/html/body/div[1]/div/div[8]/div[2]/div/div/div[3]/div[1]/div/div[2]/div[2]')
+    product_options = find_element_by_xpath('/html/body/div[1]/div/div[8]/div[2]/div/div/div[1]/div/div[1]/div[2]/div')
     product_options_list = product_options.find_elements(By.TAG_NAME, 'div')
-    assert(product_options_list, f'No product options')
+    assert(product_options_list, 'No product options')
     weight_in_kg = args[1] / 1000
     product_option_index = 1
     while product_option_index < len(product_options_list):
@@ -55,15 +71,15 @@ def find_product_on_item_page(*args):
             return product_data
         else:
             product_options_list[product_option_index].click()
-            product_title = browser.find_element(By.XPATH, '/html/body/div[1]/div/div[8]/div[2]/div/div/div[1]/div/div[1]/div[1]/div/span[2]')
-            product_price = browser.find_element(By.XPATH, '/html/body/div[1]/div/div[8]/div[2]/div/div/div[3]/div[1]/div/div[2]/div[2]')         
+            product_title = find_element_by_xpath('/html/body/div[1]/div/div[8]/div[2]/div/div/div[1]/div/div[1]/div[1]/div/span[2]')
+            product_price = find_element_by_xpath('/html/body/div[1]/div/div[8]/div[2]/div/div/div[3]/div[1]/div/div[2]/div[2]')         
             product_option_index += 1
     return None
 
 def search_product_by_attributes(product_type='M68', product_weight_in_gramms=1000):
     global browser
     input_search_request(SEARCH_REQUEST)
-    first_element_price = browser.find_element(By.XPATH,'/html/body/div[1]/div/div[4]/div[2]/div[2]/div[2]/div/div/div[1]/div/div/a/div[3]/div[2]/div[1]')
+    first_element_price = find_element_by_xpath('/html/body/div[1]/div/div[4]/div[2]/div[2]/div[2]/div/div/div[1]/div/div/a/div[3]/div[2]/div[1]')
     searched_elements_list = browser.find_elements(By.CLASS_NAME, first_element_price.get_attribute('class'))
     products_list = sort_elements_by_price(searched_elements_list)
     window_index = 1
