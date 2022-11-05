@@ -1,0 +1,11 @@
+Log file for Resione parser 
+ 
+INFO: root - Sat, 05 Nov 2022 23:57:41 -  Browser init done!
+INFO: apscheduler.scheduler - Sat, 05 Nov 2022 23:57:41 -  Scheduler started
+INFO: telegram.ext._application - Sat, 05 Nov 2022 23:57:41 -  Application started
+INFO: apscheduler.scheduler - Sat, 05 Nov 2022 23:57:44 -  Added job "callback_daily_hello" to job store "default"
+INFO: apscheduler.executors.default - Sat, 05 Nov 2022 23:59:00 -  Running job "callback_daily_hello (trigger: cron[day_of_week='sun,mon,tue,wed,thu,fri,sat', hour='23', minute='59', second='0'], next run at: 2022-11-06 23:59:00 RTZ 2 (зима))" (scheduled at 2022-11-05 23:59:00+03:00)
+INFO: apscheduler.executors.default - Sat, 05 Nov 2022 23:59:00 -  Job "callback_daily_hello (trigger: cron[day_of_week='sun,mon,tue,wed,thu,fri,sat', hour='23', minute='59', second='0'], next run at: 2022-11-06 23:59:00 RTZ 2 (зима))" executed successfully
+INFO: telegram.ext._application - Sat, 05 Nov 2022 23:59:26 -  Application is stopping. This might take a moment.
+INFO: apscheduler.scheduler - Sat, 05 Nov 2022 23:59:26 -  Scheduler has been shut down
+INFO: telegram.ext._application - Sat, 05 Nov 2022 23:59:26 -  Application.stop() complete
