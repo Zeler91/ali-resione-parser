@@ -16,6 +16,7 @@ options.add_argument("--window-size=1920,1080")
 options.add_argument('--disable-dev-shm-usage')
 options.add_argument('--disable-extensions')
 
+
 try:
     browser = webdriver.Chrome(options=options)
     browser.implicitly_wait(1)
@@ -25,13 +26,16 @@ except Exception as e:
 
 log_config.logging.info('Browser init done!')
 
+
 def input_search_request(search_request:str):
     global browser
+
     browser.get("https://www.aliexpress.ru")
     search_input = browser.find_element(By.ID, "searchInput")  
     search_input.send_keys(search_request) 
     search_input.send_keys(Keys.ENTER)   
     browser.implicitly_wait(1)
+
 
 def sort_elements_by_price(elements_list):
     price_list_sorted = []
@@ -46,15 +50,39 @@ def sort_elements_by_price(elements_list):
                 break
     return elements_list_sorted
 
-def find_element_by_xpath(xpath:str):
+
+def find_element_by_xpath(xpath:str, web_element:webdriver = None):
     global browser
+
     try:
-        element = browser.find_element(By.XPATH, xpath)
+        if web_element:
+            element = web_element.find_element(By.XPATH, xpath)
+        else:
+            element = browser.find_element(By.XPATH, xpath)
     except Exception as e:
         log_config.logging.error(f'xpath error: {xpath}')
         raise
     return element
 
+
+def parse_coupon_data(id:str):
+    global browser
+
+    coupon_block = browser.find_element(By.ID, id)
+    if coupon_block :
+        coupon_list = coupon_block.find_elements(By.XPATH, './*')
+        if len(coupon_list) > 1:
+            coupone_data = f'Проверьте купоны и скидки на: {browser.current_url}'
+        else:
+            coupon_discount = find_element_by_xpath('.//div/div/div/div[2]/div/div/div[1]/span', coupon_block)
+            coupon_info = find_element_by_xpath('.//div/div/div/div[2]/div/div/div[2]/span', coupon_block)
+            coupon_timer = find_element_by_xpath('.//div/div/div/div[2]/div/div/div[1]/div/span', coupon_block)
+            coupone_data = {'discount':coupon_discount.text,
+                            'info':coupon_info.text,
+                            'coupon_timer':coupon_timer.text}
+    else:
+        coupone_data = 'Нет купонов для данного товара'
+    return coupone_data
 
 
 def find_product_on_item_page(*args):
@@ -67,7 +95,11 @@ def find_product_on_item_page(*args):
     product_option_index = 1
     while product_option_index < len(product_options_list):
         if (str(args[1]) or str(weight_in_kg)) in product_title.text and args[0] in product_title.text:
-            product_data = {'title' : product_title.text, 'price' : product_price.text, 'url' : browser.current_url}
+            coupon_data = parse_coupon_data('coupon_anchor')
+            product_data = {'title' : product_title.text, 
+                            'price' : product_price.text, 
+                            'url' : browser.current_url,
+                            'coupon' : coupon_data}
             return product_data
         else:
             product_options_list[product_option_index].click()
@@ -76,8 +108,10 @@ def find_product_on_item_page(*args):
             product_option_index += 1
     return None
 
+
 def search_product_by_attributes(product_type='M68', product_weight_in_gramms=1000):
     global browser
+
     input_search_request(SEARCH_REQUEST)
     first_element_price = find_element_by_xpath('/html/body/div[1]/div/div[4]/div[2]/div[2]/div[2]/div/div/div[1]/div/div/a/div[3]/div[2]/div[1]')
     searched_elements_list = browser.find_elements(By.CLASS_NAME, first_element_price.get_attribute('class'))
@@ -97,6 +131,7 @@ def search_product_by_attributes(product_type='M68', product_weight_in_gramms=10
     else:
         browser.quit()             
         return 'There is no products with such attributes'
+
 
 if __name__ == '__main__':
     resione = search_product_by_attributes()
