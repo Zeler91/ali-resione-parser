@@ -1,7 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import time
-import log_config
+from log_config import logger
 # import chromedriver_binary # need for debug
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -21,10 +21,10 @@ try:
     browser = webdriver.Chrome(options=options)
     browser.implicitly_wait(1)
 except Exception as e:
-    log_config.logging.error(f'Browser init error: {e}')
+    logger.error(f'Browser init error: {e}')
     raise
 
-log_config.logging.info('Browser init done!')
+logger.info('Browser init done!')
 
 
 def input_search_request(search_request:str):
@@ -60,7 +60,7 @@ def find_element_by_xpath(xpath:str, web_element:webdriver = None):
         else:
             element = browser.find_element(By.XPATH, xpath)
     except Exception as e:
-        log_config.logging.error(f'xpath error: {xpath}')
+        logger.error(f'xpath error: {xpath}')
         raise
     return element
 

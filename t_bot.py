@@ -7,8 +7,8 @@ import datetime
 
 load_dotenv()
 TOKEN = os.getenv('BOT_TOKEN')
-LOCAL_TIMEZONE = datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo
-TIME_INFO = datetime.time(11, 30, tzinfo=LOCAL_TIMEZONE)
+TIMEZONE = datetime.timezone(datetime.timedelta(hours=3))
+TIME_INFO = datetime.time(22, 40, tzinfo=TIMEZONE)
 
 async def hello(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_name = update.effective_user.full_name

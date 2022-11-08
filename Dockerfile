@@ -14,7 +14,7 @@ RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
 
 RUN mkdir /app
 WORKDIR /app
-
+VOLUME [ "/app/data" ]
 COPY . /app/
 
 RUN pip install -r requirements.txt
