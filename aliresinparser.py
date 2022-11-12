@@ -1,10 +1,11 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import time
-from log_config import logger
-# import chromedriver_binary # need for debug
+from logconfig import logger
+import chromedriver_binary # need for debug
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+import sqlitemanager as sqlm
 
 SEARCH_REQUEST = 'Resione m68'
 
@@ -28,8 +29,6 @@ logger.info('Browser init done!')
 
 
 def input_search_request(search_request:str):
-    global browser
-
     browser.get("https://www.aliexpress.ru")
     search_input = browser.find_element(By.ID, "searchInput")  
     search_input.send_keys(search_request) 
@@ -52,8 +51,6 @@ def sort_elements_by_price(elements_list):
 
 
 def find_element_by_xpath(xpath:str, web_element:webdriver = None):
-    global browser
-
     try:
         if web_element:
             element = web_element.find_element(By.XPATH, xpath)
@@ -66,8 +63,6 @@ def find_element_by_xpath(xpath:str, web_element:webdriver = None):
 
 
 def parse_coupon_data(id:str):
-    global browser
-
     coupon_block = browser.find_element(By.ID, id)
     if coupon_block :
         coupon_list = coupon_block.find_elements(By.XPATH, './*')
@@ -98,8 +93,8 @@ def find_product_on_item_page(*args):
             coupon_data = parse_coupon_data('coupon_anchor')
             product_data = {'title' : product_title.text, 
                             'price' : product_price.text, 
-                            'url' : browser.current_url,
-                            'coupon' : coupon_data}
+                            'url' : browser.current_url}
+                            # 'coupon' : coupon_data}
             return product_data
         else:
             product_options_list[product_option_index].click()
@@ -108,11 +103,16 @@ def find_product_on_item_page(*args):
             product_option_index += 1
     return None
 
+def insert_product_data_in_db(table_name:str, product_data:dict):
+    collums = tuple(product_data)
+    row = tuple(product_data.values())
+    sqlm.open_connection()
+    sqlm.create_table(table_name, collums)
+    sqlm.insert_data(table_name, [row]) 
+    sqlm.close_connection()
 
-def search_product_by_attributes(product_type='M68', product_weight_in_gramms=1000):
-    global browser
-
-    input_search_request(SEARCH_REQUEST)
+def search_product_by_attributes(product_type='M68', product_weight_in_gramms=1000, search_request=SEARCH_REQUEST):
+    input_search_request(search_request)
     first_element_price = find_element_by_xpath('/html/body/div[1]/div/div[4]/div[2]/div[2]/div[2]/div/div/div[1]/div/div/a/div[3]/div[2]/div[1]')
     searched_elements_list = browser.find_elements(By.CLASS_NAME, first_element_price.get_attribute('class'))
     products_list = sort_elements_by_price(searched_elements_list)
@@ -136,3 +136,5 @@ def search_product_by_attributes(product_type='M68', product_weight_in_gramms=10
 if __name__ == '__main__':
     resione = search_product_by_attributes()
     print(resione)
+    if type(resione) is dict:
+        insert_product_data_in_db('resione', resione)
