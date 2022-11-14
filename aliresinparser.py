@@ -7,17 +7,18 @@ import chromedriver_binary # need for debug
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import sqlitemanager as sqlm
+import json
 
 SEARCH_REQUEST = 'Resione m68'
 TIMEZONE = datetime.timezone(datetime.timedelta(hours=3))
 
 options = Options()
-options.add_argument('--no-sandbox')
-options.add_argument('--disable-gpu')
-options.add_argument('--headless')
-options.add_argument("--window-size=1920,1080")
-options.add_argument('--disable-dev-shm-usage')
-options.add_argument('--disable-extensions')
+# options.add_argument('--no-sandbox')
+# options.add_argument('--disable-gpu')
+# options.add_argument('--headless')
+# options.add_argument("--window-size=1920,1080")
+# options.add_argument('--disable-dev-shm-usage')
+# options.add_argument('--disable-extensions')
 
 class Resin:
 
@@ -28,6 +29,10 @@ class Resin:
         self.amount = amount
 
         try:
+            self.browser = webdriver.Chrome(options=options)
+            self.browser.implicitly_wait(1)
+        except RuntimeError:
+            self.browser.quit()
             self.browser = webdriver.Chrome(options=options)
             self.browser.implicitly_wait(1)
         except Exception as e:
@@ -74,21 +79,32 @@ class Resin:
         return elements_list_sorted
 
 
-    def find_element_by_xpath(self, xpath:str, web_element:webdriver = None):
-        try:
-            if web_element:
-                element = web_element.find_element(By.XPATH, xpath)
-            else:
-                element = self.browser.find_element(By.XPATH, xpath)
-        except Exception as e:
+    def find_element_by_xpath(self, name:str, xpath_anchor:webdriver = None):
+        with open('./data/static_data.json', 'r') as f:
+            data = json.load(f)
+            tables = data['tables']
+            for t in tables:
+                if t['name'] == self.name:
+                    xpath_data = t['xpath']
+                else:
+                    logger.error('No such table in static_data.json')
+        for xpath in xpath_data:
+            try:
+                if xpath_anchor:
+                    element = xpath_anchor.find_element(By.XPATH, xpath[name])
+                else:
+                    element = self.browser.find_element(By.XPATH, xpath[name])
+            except Exception:
+                continue
+            return element
+        else:
             logger.error(f'xpath error: {xpath}')
             raise
-        return element
 
 
-    def parse_coupon_data(self, id:str):
+    def parse_coupon_data(self):
         try:
-            coupon_block = self.browser.find_element(By.ID, id)
+            coupon_block = self.browser.find_element(By.ID, 'coupon_anchor')
         except Exception as e:
             coupon_block = None
             logger.warning(f'Coupon error: {e}')
@@ -97,9 +113,9 @@ class Resin:
             if len(coupon_list) > 1:
                 coupone_data = f'Проверьте купоны и скидки на: {self.browser.current_url}'
             else:
-                coupon_discount = self.find_element_by_xpath('.//div/div/div/div[2]/div/div/div[1]/span', coupon_block)
-                coupon_info = self.find_element_by_xpath('.//div/div/div/div[2]/div/div/div[2]/span', coupon_block)
-                coupon_timer = self.find_element_by_xpath('.//div/div/div/div[2]/div/div/div[1]/div/span', coupon_block)
+                coupon_discount = self.find_element_by_xpath('coupon_discount', coupon_block)
+                coupon_info = self.find_element_by_xpath('coupon_info', coupon_block)
+                coupon_timer = self.find_element_by_xpath('coupon_timer', coupon_block)
                 coupone_data = {'discount':coupon_discount.text,
                                 'info':coupon_info.text,
                                 'coupon_timer':coupon_timer.text}
@@ -108,17 +124,18 @@ class Resin:
         return coupone_data
 
 
-    def find_product_on_item_page(self, *args):
-        product_title = self.find_element_by_xpath('/html/body/div[1]/div/div[7]/div[2]/div/div/div[1]/div/div[1]/div[1]/div/span[2]')
-        product_price = self.find_element_by_xpath('/html/body/div[1]/div/div[7]/div[2]/div/div/div[3]/div[1]/div/div[2]/div[2]')
-        product_options = self.find_element_by_xpath('/html/body/div[1]/div/div[7]/div[2]/div/div/div[1]/div/div[1]/div[2]/div')
+    def find_product_on_item_page(self):
+        product_title = self.find_element_by_xpath('product_title')
+        product_price = self.find_element_by_xpath('product_price')
+        product_options = self.find_element_by_xpath('product_options')
         product_options_list = product_options.find_elements(By.TAG_NAME, 'div')
         assert(product_options_list, 'No product options')
         weight_in_kg = self.amount / 1000
         product_option_index = 1
         while product_option_index < len(product_options_list):
-            if (str(self.amount) or str(weight_in_kg)) in product_title.text and self.product_type in product_title.text:             
-                coupon_data = self.parse_coupon_data('coupon_anchor')
+            if (str(self.amount) in product_title.text or
+                str(weight_in_kg) in product_title.text) and self.product_type in product_title.text:             
+                coupon_data = self.parse_coupon_data()
                 current_date = datetime.datetime.now(TIMEZONE).date().strftime('%d.%m.%Y')
                 product_data = {'title' : product_title.text, 
                                 'price' : product_price.text, 
@@ -128,8 +145,8 @@ class Resin:
                 return product_data
             else:
                 product_options_list[product_option_index].click()
-                product_title = self.find_element_by_xpath('/html/body/div[1]/div/div[7]/div[2]/div/div/div[1]/div/div[1]/div[1]/div/span[2]')
-                product_price = self.find_element_by_xpath('/html/body/div[1]/div/div[7]/div[2]/div/div/div[3]/div[1]/div/div[2]/div[2]')         
+                product_title = self.find_element_by_xpath('product_title')
+                product_price = self.find_element_by_xpath('product_price')       
                 product_option_index += 1
         return None
 
@@ -150,7 +167,7 @@ class Resin:
 
     def get_product_data(self):
         self.input_search_request()
-        first_element_price = self.find_element_by_xpath('/html/body/div[1]/div/div[4]/div[2]/div[2]/div[2]/div/div/div[1]/div/div/a/div[3]/div[2]/div[1]')
+        first_element_price = self.find_element_by_xpath('first_element_price')
         searched_elements_list = self.browser.find_elements(By.CLASS_NAME, first_element_price.get_attribute('class'))
         products_list = self.sort_elements_by_price(searched_elements_list)
         window_index = 1
@@ -172,9 +189,23 @@ class Resin:
 
 
 if __name__ == '__main__':
-    # resione = Resin('Resione', SEARCH_REQUEST, 'M68', 1000)
-    # print(resione)
+    resins = []
+    with open('./data/static_data.json', 'r') as f:
+            data = json.load(f)
+            tables = data['tables']
+            for t in tables:
+                t_name = t['name']
+                t_srs = t['search_request']
+                t_types = t['type']
+                t_amounts = t['amount']
+                for sr in t_srs:
+                    for t_type in t_types:
+                        if t_type.lower() in sr.lower():
+                            for amount in t_amounts:
+                                resin = Resin(t_name, sr, t_type, amount)
+                                resins.append(resin)
+                                print(resin)
     # resione.insert_product_data_in_db('resione')
-    sqlm.select_data(f'SELECT * FROM resione DESC LIMIT 1')
+    # sqlm.select_data(f'SELECT * FROM resione DESC LIMIT 1')
     # if type(resione) is dict:
     #     insert_product_data_in_db('resione', resione)

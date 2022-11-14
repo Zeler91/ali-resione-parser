@@ -1,41 +1,31 @@
 Log file for Resione parser 
  
-INFO: apscheduler.scheduler - Mon, 14 Nov 2022 00:31:34 -  Scheduler started
-INFO: telegram.ext._application - Mon, 14 Nov 2022 00:31:34 -  Application started
-INFO: apscheduler.scheduler - Mon, 14 Nov 2022 00:31:42 -  Added job "refresh_data" to job store "default"
-INFO: apscheduler.scheduler - Mon, 14 Nov 2022 00:31:42 -  Removed job 6c9bd807ed164e9a8b586a3d61d022aa
-INFO: apscheduler.executors.default - Mon, 14 Nov 2022 00:31:42 -  Running job "refresh_data (trigger: date[2022-11-13 21:31:42 UTC], next run at: 2022-11-13 21:31:42 UTC)" (scheduled at 2022-11-13 21:31:42.066537+00:00)
-INFO: root - Mon, 14 Nov 2022 00:31:43 -  Browser init done!
-WARNING: root - Mon, 14 Nov 2022 00:31:56 -  Coupon error: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[id="coupon_anchor"]"}
-  (Session info: headless chrome=107.0.5304.107)
+INFO: root - Tue, 15 Nov 2022 01:02:49 -  Browser init done!
+WARNING: root - Tue, 15 Nov 2022 01:03:04 -  Coupon error: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[id="coupon_anchor"]"}
+  (Session info: chrome=107.0.5304.107)
 Stacktrace:
 Backtrace:
-	Ordinal0 [0x003D1ED3+2236115]
-	Ordinal0 [0x003692F1+1807089]
-	Ordinal0 [0x002766FD+812797]
-	Ordinal0 [0x002A55DF+1005023]
-	Ordinal0 [0x002A57CB+1005515]
-	Ordinal0 [0x002D7632+1209906]
-	Ordinal0 [0x002C1AD4+1120980]
-	Ordinal0 [0x002D59E2+1202658]
-	Ordinal0 [0x002C18A6+1120422]
-	Ordinal0 [0x0029A73D+960317]
-	Ordinal0 [0x0029B71F+964383]
-	GetHandleVerifier [0x0067E7E2+2743074]
-	GetHandleVerifier [0x006708D4+2685972]
-	GetHandleVerifier [0x00462BAA+532202]
-	GetHandleVerifier [0x00461990+527568]
-	Ordinal0 [0x0037080C+1837068]
-	Ordinal0 [0x00374CD8+1854680]
-	Ordinal0 [0x00374DC5+1854917]
-	Ordinal0 [0x0037ED64+1895780]
+	Ordinal0 [0x00F11ED3+2236115]
+	Ordinal0 [0x00EA92F1+1807089]
+	Ordinal0 [0x00DB66FD+812797]
+	Ordinal0 [0x00DE55DF+1005023]
+	Ordinal0 [0x00DE57CB+1005515]
+	Ordinal0 [0x00E17632+1209906]
+	Ordinal0 [0x00E01AD4+1120980]
+	Ordinal0 [0x00E159E2+1202658]
+	Ordinal0 [0x00E018A6+1120422]
+	Ordinal0 [0x00DDA73D+960317]
+	Ordinal0 [0x00DDB71F+964383]
+	GetHandleVerifier [0x011BE7E2+2743074]
+	GetHandleVerifier [0x011B08D4+2685972]
+	GetHandleVerifier [0x00FA2BAA+532202]
+	GetHandleVerifier [0x00FA1990+527568]
+	Ordinal0 [0x00EB080C+1837068]
+	Ordinal0 [0x00EB4CD8+1854680]
+	Ordinal0 [0x00EB4DC5+1854917]
+	Ordinal0 [0x00EBED64+1895780]
 	BaseThreadInitThunk [0x76486939+25]
 	RtlGetFullPathName_UEx [0x77938FD2+1218]
 	RtlGetFullPathName_UEx [0x77938F9D+1165]
 
-INFO: root - Mon, 14 Nov 2022 00:31:58 -  Table: 'resione' already exist!
-INFO: root - Mon, 14 Nov 2022 00:31:58 -  Data successfully insert into "resione" table!
-INFO: apscheduler.executors.default - Mon, 14 Nov 2022 00:31:59 -  Job "refresh_data (trigger: date[2022-11-13 21:31:42 UTC], next run at: 2022-11-13 21:31:42 UTC)" executed successfully
-INFO: telegram.ext._application - Mon, 14 Nov 2022 00:32:27 -  Application is stopping. This might take a moment.
-INFO: apscheduler.scheduler - Mon, 14 Nov 2022 00:32:27 -  Scheduler has been shut down
-INFO: telegram.ext._application - Mon, 14 Nov 2022 00:32:27 -  Application.stop() complete
+INFO: root - Tue, 15 Nov 2022 01:03:08 -  Browser init done!

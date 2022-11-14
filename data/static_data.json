@@ -1,0 +1,30 @@
+{
+    "tables": [
+        {
+            "name": "resione",
+            "search_request": ["Resione M68", "Resione M58"],
+            "type": ["M68", "m58"],
+            "amount": [1000],
+            "xpath": [
+                {
+                    "first_element_price": "/html/body/div[1]/div/div[4]/div[2]/div[2]/div[2]/div/div/div[1]/div/div/a/div[3]/div[2]/div[1]",
+                    "product_title": "/html/body/div[1]/div/div[7]/div[2]/div/div/div[1]/div/div[1]/div[1]/div/span[2]",
+                    "product_price": "/html/body/div[1]/div/div[7]/div[2]/div/div/div[3]/div[1]/div/div[2]/div[2]",
+                    "product_options": "/html/body/div[1]/div/div[7]/div[2]/div/div/div[1]/div/div[1]/div[2]/div",
+                    "coupon_discount": ".//div/div/div/div[2]/div/div/div[1]/span",
+                    "coupon_info": ".//div/div/div/div[2]/div/div/div[2]/span",
+                    "coupon_timer": ".//div/div/div/div[2]/div/div/div[1]/div/span"
+                },
+                {
+                    "first_element_price": "/html/body/div[1]/div/div[4]/div[2]/div[2]/div[2]/div/div/div[1]/div/div/a/div[3]/div[2]/div[1]",
+                    "product_title": "/html/body/div[1]/div/div[8]/div[2]/div/div/div[1]/div/div[1]/div[1]/div/span[2]",
+                    "product_price": "/html/body/div[1]/div/div[8]/div[2]/div/div/div[3]/div[1]/div/div[2]/div[2]",
+                    "product_options": "/html/body/div[1]/div/div[8]/div[2]/div/div/div[1]/div/div[1]/div[2]/div",
+                    "coupon_discount": ".//div/div/div/div[2]/div/div/div[1]/span",
+                    "coupon_info": ".//div/div/div/div[2]/div/div/div[2]/span",
+                    "coupon_timer": ".//div/div/div/div[2]/div/div/div[1]/div/span"
+                }
+            ]
+        }
+    ]   
+}
