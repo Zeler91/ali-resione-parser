@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.common.exceptions import WebDriverException
 import time
 import datetime
 from logconfig import logger
@@ -13,12 +14,12 @@ SEARCH_REQUEST = 'Resione m68'
 TIMEZONE = datetime.timezone(datetime.timedelta(hours=3))
 
 options = Options()
-# options.add_argument('--no-sandbox')
-# options.add_argument('--disable-gpu')
-# options.add_argument('--headless')
-# options.add_argument("--window-size=1920,1080")
-# options.add_argument('--disable-dev-shm-usage')
-# options.add_argument('--disable-extensions')
+options.add_argument('--no-sandbox')
+options.add_argument('--disable-gpu')
+options.add_argument('--headless')
+options.add_argument("--window-size=1920,1080")
+options.add_argument('--disable-dev-shm-usage')
+options.add_argument('--disable-extensions')
 
 class Resin:
 
@@ -46,8 +47,8 @@ class Resin:
         self.coupon = self.product_data["coupon"]
         if type(self.coupon) is dict:
             self.coupon = f'Купон на: {self.coupon["discount"]} \
-                               \n{self.coupon["info"]} \
-                               \nСрок купона: {self.coupon["coupon_timer"]}'
+                               \n {self.coupon["info"]} \
+                               \n Срок купона: {self.coupon["coupon_timer"]}'
 
     def __str__(self) -> str:
         if type(self.product_data) is dict:
@@ -98,8 +99,7 @@ class Resin:
                 continue
             return element
         else:
-            logger.error(f'xpath error: {xpath}')
-            raise
+            logger.warning(f'xpath warning: {xpath}')
 
 
     def parse_coupon_data(self):
@@ -125,14 +125,22 @@ class Resin:
 
 
     def find_product_on_item_page(self):
-        product_title = self.find_element_by_xpath('product_title')
-        product_price = self.find_element_by_xpath('product_price')
         product_options = self.find_element_by_xpath('product_options')
+        arrow = self.find_element_by_xpath('arrow')
+        if arrow:
+            arrow.click()
         product_options_list = product_options.find_elements(By.TAG_NAME, 'div')
         assert(product_options_list, 'No product options')
         weight_in_kg = self.amount / 1000
-        product_option_index = 1
-        while product_option_index < len(product_options_list):
+        product_option_index = 0
+        options_amount = len(product_options_list)
+        while product_option_index < options_amount:
+            try:
+                product_options_list[product_option_index].click()
+                product_title = self.find_element_by_xpath('product_title')
+                product_price = self.find_element_by_xpath('product_price')       
+            except WebDriverException:
+                logger.warning(f'WebElement "{product_options_list[product_option_index]}" is not clickable')
             if (str(self.amount) in product_title.text or
                 str(weight_in_kg) in product_title.text) and self.product_type in product_title.text:             
                 coupon_data = self.parse_coupon_data()
@@ -144,9 +152,6 @@ class Resin:
                                 'coupon' : coupon_data}
                 return product_data
             else:
-                product_options_list[product_option_index].click()
-                product_title = self.find_element_by_xpath('product_title')
-                product_price = self.find_element_by_xpath('product_price')       
                 product_option_index += 1
         return None
 
@@ -187,25 +192,25 @@ class Resin:
             self.browser.quit()             
             self.product_data = 'There is no products with such attributes'
 
+def create_resin(db_acces=False, verbose=True):
+    with open('./data/static_data.json', 'r') as f:
+        data = json.load(f)
+        tables = data['tables']
+        for t in tables:
+            t_name = t['name']
+            t_srs = t['search_request']
+            t_types = t['type']
+            t_amounts = t['amount']
+            for sr in t_srs:
+                for t_type in t_types:
+                    if t_type.lower() in sr.lower():
+                        for amount in t_amounts:
+                            resin = Resin(t_name, sr, t_type, amount)
+                            if verbose:
+                                print(resin)
+                            if db_acces:
+                                resin.insert_product_data_in_db(t_name)
 
 if __name__ == '__main__':
-    resins = []
-    with open('./data/static_data.json', 'r') as f:
-            data = json.load(f)
-            tables = data['tables']
-            for t in tables:
-                t_name = t['name']
-                t_srs = t['search_request']
-                t_types = t['type']
-                t_amounts = t['amount']
-                for sr in t_srs:
-                    for t_type in t_types:
-                        if t_type.lower() in sr.lower():
-                            for amount in t_amounts:
-                                resin = Resin(t_name, sr, t_type, amount)
-                                resins.append(resin)
-                                print(resin)
-    # resione.insert_product_data_in_db('resione')
-    # sqlm.select_data(f'SELECT * FROM resione DESC LIMIT 1')
-    # if type(resione) is dict:
-    #     insert_product_data_in_db('resione', resione)
+    # create_resin(db_acces=True)
+    sqlm.select_data(f'SELECT DISTINCT product_model, price, url FROM resione')

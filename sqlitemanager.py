@@ -53,12 +53,3 @@ def select_data(sql_request:str, verbose=True):
         return row_list[0]
     else:
         return row_list
-
-
-# open_connection()
-# create_table('test_table', 'score', 'record', 'time')
-# test_data = [(100, 150, 23), (77, 150, 44), (52, 150, 10)]
-# insert_data('test_table', test_data)
-# select_all_data('test_table')
-
-# def close_connection():
