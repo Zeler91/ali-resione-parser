@@ -47,8 +47,8 @@ class Resin:
         self.coupon = self.product_data["coupon"]
         if type(self.coupon) is dict:
             self.coupon = f'Купон на: {self.coupon["discount"]} \
-                               \n {self.coupon["info"]} \
-                               \n Срок купона: {self.coupon["coupon_timer"]}'
+                               \n{self.coupon["info"]} \
+                               \nСрок купона: {self.coupon["coupon_timer"]}'
 
     def __str__(self) -> str:
         if type(self.product_data) is dict:
@@ -141,6 +141,9 @@ class Resin:
                 product_price = self.find_element_by_xpath('product_price')       
             except WebDriverException:
                 logger.warning(f'WebElement "{product_options_list[product_option_index]}" is not clickable')
+                continue
+            finally:
+                product_option_index += 1
             if (str(self.amount) in product_title.text or
                 str(weight_in_kg) in product_title.text) and self.product_type in product_title.text:             
                 coupon_data = self.parse_coupon_data()
@@ -151,8 +154,6 @@ class Resin:
                                 'date': current_date,
                                 'coupon' : coupon_data}
                 return product_data
-            else:
-                product_option_index += 1
         return None
 
 
@@ -212,5 +213,8 @@ def create_resin(db_acces=False, verbose=True):
                                 resin.insert_product_data_in_db(t_name)
 
 if __name__ == '__main__':
-    # create_resin(db_acces=True)
-    sqlm.select_data(f'SELECT DISTINCT product_model, price, url FROM resione')
+    create_resin(db_acces=True)
+    # sqlm.select_data(f'SELECT * \
+    #                    FROM resione \
+    #                    WHERE (resione.product_model = "M68-1000") \
+    #                    ORDER BY resione.date DESC LIMIT 1')

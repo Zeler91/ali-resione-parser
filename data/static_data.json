@@ -2,9 +2,9 @@
     "tables": [
         {
             "name": "resione",
-            "search_request": ["Resione M68"],
-            "type": ["M68"],
-            "amount": [1000],
+            "search_request": ["Resione M58"],
+            "type": ["M58"],
+            "amount": [500],
             "xpath": [
                 {
                     
