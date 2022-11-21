@@ -11,14 +11,37 @@ import sqlite3
 with open('./data/static_data.json', 'r') as f:
     data = json.load(f)
     tables = data['tables']
-models = ["M68-1000", "M58-500"]
+models = ["M68-1000"]
 load_dotenv()
 TOKEN = os.getenv('BOT_TOKEN')
-TIMEZONE = datetime.timezone(datetime.timedelta(hours=3))
-TIME_INFO = datetime.time(12, 00, tzinfo=TIMEZONE)
-REFRESH_TIME = datetime.time(11, 00, tzinfo=TIMEZONE)
-CHANGE_TIMER_ENABLE = False
 ADMIN_ID = 430666779
+TIMEZONE = 3
+TIME_INFO = (12, 00)
+REFRESH_TIME = (11, 00)
+
+class TimeController(object):
+    
+    def __init__(self, timezone_delta:int, time_info:tuple, refresh_time:tuple):
+        self.set_timezone_info(timezone_delta)
+        self.set_time(time_info)
+        self.set_time(refresh_time, refresh=True)
+        self.change_timer_enable = False
+
+    def change_timer_state(self):
+        self.change_timer_enable = not self.change_timer_enable
+    
+    def set_timezone_info(self, timezone_delta:int):
+        self.timezone_info = datetime.timezone(datetime.timedelta(hours=timezone_delta))
+
+    def set_time(self, time_info:tuple, refresh=False):
+        time_tuple = datetime.time(time_info[0], time_info[1], tzinfo=self.timezone_info)
+        if refresh:
+            self.refresh_time = time_tuple
+        else:
+            self.time_info = time_tuple
+
+time_controller = TimeController(TIMEZONE, TIME_INFO, REFRESH_TIME)
+
 
 def admin(func):
     async def check_admin(*args):
@@ -35,6 +58,7 @@ def admin(func):
                                 text=f'Отказанно в доступе. Используйте аккаунт админа.')
             
     return check_admin
+
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await hello(update, context)
@@ -55,22 +79,19 @@ async def hello(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(f'Привет, {user_name}. Твой id: {update.message.chat_id}')
 
 async def change_timer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    global CHANGE_TIMER_ENABLE
-
     await update.message.reply_text(f'Введите время вывода сообщений в формате: ЧЧ-ММ')
-    CHANGE_TIMER_ENABLE = True
+    time_controller.change_timer_state()
  
 async def set_timer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    global CHANGE_TIMER_ENABLE, TIME_INFO
-    if CHANGE_TIMER_ENABLE:
+    if time_controller.change_timer_enable:
         timer = update.message.text
-        timer_hours = timer.split("-")[0]
-        timer_minutes = timer.split("-")[1]
-        TIME_INFO = datetime.time(int(timer_hours), int(timer_minutes), tzinfo=TIMEZONE)
-        await update.message.reply_text(f'Сообщения будут поступать в {timer_hours}:{timer_minutes}')
-        context.job_queue.run_daily(show_data, TIME_INFO,
+        parse_timer = timer.split("-")
+        new_time_info = tuple(map(int, parse_timer))
+        time_controller.set_time(new_time_info)
+        await update.message.reply_text(f'Сообщения будут поступать в {parse_timer[0]}:{parse_timer[1]}')
+        context.job_queue.run_daily(show_data, time_controller.time_info,
                                     chat_id=update.message.chat_id)
-        CHANGE_TIMER_ENABLE = False
+        time_controller.change_timer_state()
 
 
 async def show_data(context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -97,13 +118,13 @@ async def refresh_data(context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = context.job.chat_id
     if user_id == ADMIN_ID: 
         await context.bot.send_message(chat_id=user_id,
-                                    text=f'Данные обновляются, процесс может занять несколько минут...') 
+                                       text=f'Данные обновляются, процесс может занять несколько минут...') 
         create_resin(db_acces=True, verbose=False)
         await context.bot.send_message(chat_id=user_id,
                                     text=f'Данные успешно обновлены!')
     else:
         await context.bot.send_message(chat_id=user_id,
-                                    text=f'Отказанно в доступе. Используйте аккаунт админа.')
+                                       text=f'Отказанно в доступе. Используйте аккаунт админа.')
 
 @admin
 async def refresh_data_once(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -115,13 +136,13 @@ async def refresh_data_once(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 @admin
 async def refresh_data_daily(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await context.bot.send_message(chat_id=update.effective_chat.id,
-                                   text=f'Данные будут обновляться каждый день в {REFRESH_TIME}')
-    await context.job_queue.run_daily(refresh_data, REFRESH_TIME, 
-                                chat_id=update.message.chat_id)
+                                   text=f'Данные будут обновляться каждый день в {time_controller.refresh_time}')
+    await context.job_queue.run_daily(refresh_data, time_controller.refresh_time, 
+                                      chat_id=update.message.chat_id)
 
 async def show_data_once(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await context.job_queue.run_once(show_data, 0,
-                               chat_id=update.message.chat_id)
+                                     chat_id=update.message.chat_id)
 
 
 app = ApplicationBuilder().token(TOKEN).build()

@@ -1,18 +1,17 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import WebDriverException
-import time
 import datetime
 from logconfig import logger
-import chromedriver_binary # need for debug
+# import chromedriver_binary # need for debug
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import sqlitemanager as sqlm
 import json
 
-SEARCH_REQUEST = 'Resione m68'
 TIMEZONE = datetime.timezone(datetime.timedelta(hours=3))
 
+# init web browser options
 options = Options()
 options.add_argument('--no-sandbox')
 options.add_argument('--disable-gpu')
@@ -49,6 +48,7 @@ class Resin:
             self.coupon = f'Купон на: {self.coupon["discount"]} \
                                \n{self.coupon["info"]} \
                                \nСрок купона: {self.coupon["coupon_timer"]}'
+
 
     def __str__(self) -> str:
         if type(self.product_data) is dict:
@@ -193,6 +193,7 @@ class Resin:
             self.browser.quit()             
             self.product_data = 'There is no products with such attributes'
 
+# method for call from outside modules
 def create_resin(db_acces=False, verbose=True):
     with open('./data/static_data.json', 'r') as f:
         data = json.load(f)
@@ -213,8 +214,12 @@ def create_resin(db_acces=False, verbose=True):
                                 resin.insert_product_data_in_db(t_name)
 
 if __name__ == '__main__':
+
+    # get data from ali and push it in db
     create_resin(db_acces=True)
-    # sqlm.select_data(f'SELECT * \
-    #                    FROM resione \
-    #                    WHERE (resione.product_model = "M68-1000") \
-    #                    ORDER BY resione.date DESC LIMIT 1')
+
+    # get data fron db
+    sqlm.select_data(f'SELECT * \
+                       FROM resione \
+                       WHERE (resione.product_model = "M68-1000") \
+                       ORDER BY resione.date DESC LIMIT 1')
